@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>通用语音查询系统</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<header class="topbar">
+    <div>
+        <div class="eyebrow">Voice Query System</div>
+        <h1>通用语音查询系统</h1>
+    </div>
+    <div class="top-actions">
+        <span class="login-user" th:text="'管理员：' + ${session.loginAdmin}">管理员：admin</span>
+        <a class="console-link" href="/h2-console" target="_blank">H2 数据库控制台</a>
+        <form th:action="@{/logout}" method="post">
+            <button class="logout-btn" type="submit">退出登录</button>
+        </form>
+    </div>
+</header>
+
+<main class="layout">
+    <section class="panel query-panel">
+        <div class="section-head">
+            <div>
+                <h2>查询配置</h2>
+                <p>选择数据表后，系统会自动读取列名和数据类型，并按类型生成可用运算符。</p>
+            </div>
+            <button id="reloadColumnsBtn" class="ghost-btn" type="button">刷新列信息</button>
+        </div>
+
+        <div class="table-row">
+            <label for="tableName">表名变量</label>
+            <select id="tableName">
+                <option th:each="table : ${tables}" th:value="${table}" th:text="${table}">students</option>
+            </select>
+        </div>
+
+        <div class="voice-box">
+            <div>
+                <label for="voiceText">语音转文本结果</label>
+                <textarea id="voiceText" rows="3" placeholder="例如：我要查询性别为男，年龄小于18岁的所有学生信息"></textarea>
+            </div>
+            <div class="voice-actions">
+                <button id="startVoiceBtn" class="primary-btn" type="button">开始语音识别</button>
+                <button id="parseVoiceBtn" class="secondary-btn" type="button">分析文本生成条件</button>
+            </div>
+            <div id="voiceHint" class="hint">浏览器需要允许麦克风权限；如果环境不支持语音识别，可以直接输入文字后点击分析。</div>
+        </div>
+
+        <div class="condition-title">
+            <div>
+                <h3>动态查询条件</h3>
+                <p>支持 &lt;、&gt;、≥、≤、=、Like、Is 等运算符。</p>
+            </div>
+            <button id="addConditionBtn" class="icon-btn" type="button" title="增加条件">+</button>
+        </div>
+
+        <div id="conditionList" class="condition-list"></div>
+
+        <div class="where-box">
+            <label for="wherePreview">构造的查询条件</label>
+            <textarea id="wherePreview" rows="3" readonly>无查询条件</textarea>
+        </div>
+
+        <div class="actions">
+            <button id="runQueryBtn" class="primary-btn" type="button">执行查询</button>
+            <button id="clearBtn" class="secondary-btn" type="button">清空条件</button>
+        </div>
+    </section>
+
+    <section class="panel result-panel">
+        <div class="section-head">
+            <div>
+                <h2>查询结果</h2>
+                <p>后端使用参数化 SQL 查询，页面展示生成的 SQL 和结果数据。</p>
+            </div>
+        </div>
+        <div class="sql-view">
+            <span>SQL</span>
+            <code id="sqlPreview">SELECT * FROM students ORDER BY id</code>
+        </div>
+        <div id="messageBox" class="message" hidden></div>
+        <div class="table-wrap">
+            <table id="resultTable">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<template id="conditionTemplate">
+    <div class="condition-row">
+        <select class="column-select" aria-label="列名"></select>
+        <select class="operator-select" aria-label="运算符"></select>
+        <input class="value-input" aria-label="数据输入框" placeholder="数据输入框">
+        <select class="connector-select" aria-label="连接符">
+            <option value="AND">并且 AND</option>
+            <option value="OR">或者 OR</option>
+        </select>
+        <button class="remove-btn" type="button" title="删除条件">-</button>
+    </div>
+</template>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
